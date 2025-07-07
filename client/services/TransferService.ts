@@ -281,7 +281,7 @@ class TransferService {
   /**
    * Get new members data from localStorage
    */
-  private getNewMembersData(): any[] {
+  public getNewMembersData(): any[] {
     const stored = localStorage.getItem("tsoam_new_members_data");
     return stored ? JSON.parse(stored) : [];
   }
@@ -296,7 +296,7 @@ class TransferService {
   /**
    * Get full members data from localStorage
    */
-  private getFullMembersData(): any[] {
+  public getFullMembersData(): any[] {
     const stored = localStorage.getItem("tsoam_full_members_data");
     return stored ? JSON.parse(stored) : [];
   }
@@ -304,7 +304,7 @@ class TransferService {
   /**
    * Save full members data to localStorage
    */
-  private saveFullMembersData(data: any[]): void {
+  public saveFullMembersData(data: any[]): void {
     localStorage.setItem("tsoam_full_members_data", JSON.stringify(data));
   }
 

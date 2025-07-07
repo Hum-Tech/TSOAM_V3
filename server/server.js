@@ -22,7 +22,7 @@ const dashboardRoutes = require("./routes/dashboard");
 const systemLogsRoutes = require("./routes/system-logs");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "uploads");
@@ -178,7 +178,7 @@ async function startServer() {
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log("🚀 TSOAM Church Management System Server Started");
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━��━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
       console.log(`🌐 Server running on: http://localhost:${PORT}`);
       console.log(`🔗 LAN Access: http://[YOUR-IP]:${PORT}`);
       console.log(`📁 Upload directory: ${uploadsDir}`);
@@ -188,9 +188,9 @@ async function startServer() {
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
       console.log("🔧 To access from other computers on LAN:");
       console.log("   1. Find your computer's IP address");
-      console.log("   2. Open http://[YOUR-IP]:3001 on other devices");
-      console.log("   3. Ensure firewall allows port 3001");
-      console.log("━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      console.log(`   2. Open http://[YOUR-IP]:${PORT} on other devices`);
+      console.log(`   3. Ensure firewall allows port ${PORT}`);
+      console.log("━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━");
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

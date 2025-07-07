@@ -130,7 +130,7 @@ interface Invoice {
 }
 
 interface InvoiceItem {
-  id: string | number;
+  id: string;
   description: string;
   quantity: number;
   unitPrice: number;
@@ -589,7 +589,7 @@ export default function FinanceAdvanced() {
     notes: "",
     items: [
       {
-        id: 1,
+        id: "1",
         description: "",
         quantity: 1,
         unitPrice: 0,
@@ -719,7 +719,7 @@ export default function FinanceAdvanced() {
       notes: "",
       items: [
         {
-          id: 1,
+          id: "1",
           description: "",
           quantity: 1,
           unitPrice: 0,
@@ -1130,8 +1130,10 @@ export default function FinanceAdvanced() {
           subcategory: approvedTransaction.subcategory || "General",
           description: approvedTransaction.description,
           amount: approvedTransaction.amount,
+          currency: "KSh",
           paymentMethod: approvedTransaction.paymentMethod,
           receiptNumber: approvedTransaction.reference,
+          status: "Approved" as const,
           vendor: approvedTransaction.module,
           approvedBy: "Finance Manager",
           module: approvedTransaction.module,
@@ -1202,8 +1204,10 @@ export default function FinanceAdvanced() {
           subcategory: "Local Purchase Order",
           description: approvedTransaction.description,
           amount: approvedTransaction.amount,
+          currency: "KSh",
           paymentMethod: approvedTransaction.paymentMethod,
           receiptNumber: approvedTransaction.reference,
+          status: "Approved" as const,
           vendor: "LPO Supplier",
           approvedBy: "Finance Manager",
           module: "Finance",
@@ -1212,15 +1216,21 @@ export default function FinanceAdvanced() {
 
         // Also add to financial transaction service for dashboard integration
         financialTransactionService.addTransaction({
+          date: new Date().toISOString().split("T")[0],
+          type: "Expense",
           category: "Procurement",
           subcategory: "Local Purchase Order",
           description: `LPO Expense: ${approvedTransaction.description}`,
           amount: approvedTransaction.amount,
-          paymentMethod: approvedTransaction.paymentMethod,
+          currency: "KSh",
+          paymentMethod: approvedTransaction.paymentMethod as any,
           reference: `EXP-${approvedTransaction.reference}`,
-          vendor: "LPO Supplier",
-          receiptNumber: approvedTransaction.reference,
-          notes: `Expense created from approved LPO transaction ID: ${approvedTransaction.id}`,
+          module: "Finance",
+          status: "Completed",
+          createdBy: user?.name || "Finance Officer",
+          requestedBy: user?.name || "Finance Officer",
+          requiresApproval: false,
+          notes: `Expense created from approved LPO transaction ID: ${approvedTransaction.id}. Supplier: LPO Supplier`,
         });
 
         console.log("💰 LPO expense created and money deducted:", {
@@ -1424,7 +1434,7 @@ export default function FinanceAdvanced() {
           `🏦 This expense has been deducted from church funds\n` +
           `📋 Balance sheet and financial reports updated automatically` +
           (approvedTransaction.module === "Welfare"
-            ? `\n\n���� Welfare application marked as completed and ready for disbursement`
+            ? `\n\n����� Welfare application marked as completed and ready for disbursement`
             : "") +
           (approvedTransaction.module === "HR" &&
           approvedTransaction.category === "Payroll"
@@ -1455,7 +1465,11 @@ export default function FinanceAdvanced() {
       }
 
       // Call the financial service to reject transaction
-      financialTransactionService.rejectTransaction(transactionId, reason);
+      financialTransactionService.rejectTransaction(
+        transactionId,
+        "Finance Manager",
+        reason,
+      );
 
       // Send rejection notifications to respective modules
       if (
@@ -1702,12 +1716,15 @@ export default function FinanceAdvanced() {
       const newTransaction: Transaction = {
         id: `TXN-${Date.now()}`,
         date: new Date().toISOString().split("T")[0],
-        description: `Invoice Payment - ${invoice.client} (${invoice.number})`,
-        amount: invoice.amount,
-        type: "income",
+        description: `Invoice Payment - ${invoice.client} (${invoice.invoiceNumber})`,
+        amount: invoice.total,
+        type: "Income",
         category: "Invoice Payment",
-        source: "Invoice",
-        invoiceId: invoice.id,
+        currency: "KSh",
+        paymentMethod: "Bank Transfer",
+        reference: `INV-${invoice.invoiceNumber}`,
+        status: "Completed",
+        notes: `Payment for invoice ${invoice.invoiceNumber}`,
       };
 
       setTransactions([...transactions, newTransaction]);
@@ -2631,6 +2648,8 @@ export default function FinanceAdvanced() {
       module: "Finance",
       status: newTransaction.status as any,
       createdBy: user?.name || "Finance Officer",
+      requestedBy: user?.name || "Finance Officer",
+      requiresApproval: (newTransaction.amount || 0) > 1000,
       notes: newTransaction.notes,
     });
 
@@ -2699,10 +2718,10 @@ export default function FinanceAdvanced() {
           tithe: latestOffering.offerings.tithe,
           thanksgiving: latestOffering.offerings.thanksgiving,
           sacrifice: latestOffering.offerings.buildingFund,
-          seedOffering: latestOffering.offerings.missions,
-          churchPrograms: latestOffering.offerings.youth,
-          harambee: latestOffering.offerings.welfare,
-          foreignCurrency: latestOffering.offerings.others,
+          till: latestOffering.offerings.missions,
+          sSchool: latestOffering.offerings.youth,
+          targeted: latestOffering.offerings.welfare,
+          others: latestOffering.offerings.others,
         },
         minister: latestOffering.minister,
       });
@@ -2738,10 +2757,10 @@ export default function FinanceAdvanced() {
           specialOffering: newTSOAMForm.offerings.wOffering || 0,
           thanksgiving: newTSOAMForm.offerings.thanksgiving || 0,
           buildingFund: newTSOAMForm.offerings.sacrifice || 0,
-          missions: newTSOAMForm.offerings.seedOffering || 0,
-          welfare: newTSOAMForm.offerings.harambee || 0,
-          youth: newTSOAMForm.offerings.churchPrograms || 0,
-          others: newTSOAMForm.offerings.foreignCurrency || 0,
+          missions: newTSOAMForm.offerings.till || 0,
+          welfare: newTSOAMForm.offerings.sSchool || 0,
+          youth: newTSOAMForm.offerings.targeted || 0,
+          others: newTSOAMForm.offerings.others || 0,
         },
         collectedBy: user?.name || "Service Leader",
         countedBy: [user?.name || "Service Leader"],
@@ -3009,7 +3028,7 @@ export default function FinanceAdvanced() {
               ${form.expenses
                 .map(
                   (expense) =>
-                    `<tr><td>${expense.description}</td><td>${expense.amount.toLocaleString()}</td></tr>`,
+                    `<tr><td>${expense.particulars}</td><td>${expense.amount.toLocaleString()}</td></tr>`,
                 )
                 .join("")}
               <tr class="total"><td>Total Expenses</td><td>${form.expenses.reduce((sum, exp) => sum + exp.amount, 0).toLocaleString()}</td></tr>
@@ -3591,7 +3610,8 @@ export default function FinanceAdvanced() {
       ]);
 
       // Add table
-      autoTable(doc, {
+      const autoTable = await import("jspdf-autotable");
+      (doc as any).autoTable({
         head: [
           ["Date", "Description", "Reference", "Debit", "Credit", "Balance"],
         ],
@@ -3648,7 +3668,7 @@ export default function FinanceAdvanced() {
 
       // Invoice details
       pdf.setFontSize(10);
-      pdf.text(`Invoice #: ${String(invoice.number || "N/A")}`, 150, 45);
+      pdf.text(`Invoice #: ${String(invoice.invoiceNumber || "N/A")}`, 150, 45);
       pdf.text(
         `Date: ${new Date(invoice.date || Date.now()).toLocaleDateString()}`,
         150,
@@ -3666,10 +3686,9 @@ export default function FinanceAdvanced() {
       pdf.text(String(invoice.client || "N/A"), 20, 95);
 
       // Generate filename and save
-      const safeInvoiceNumber = String(invoice.number || "Unknown").replace(
-        /[^a-zA-Z0-9]/g,
-        "_",
-      );
+      const safeInvoiceNumber = String(
+        invoice.invoiceNumber || "Unknown",
+      ).replace(/[^a-zA-Z0-9]/g, "_");
       const safeDate = new Date().toISOString().split("T")[0];
       const filename = `TSOAM_Invoice_${safeInvoiceNumber}_${safeDate}.pdf`;
       pdf.save(filename);
@@ -3834,7 +3853,7 @@ export default function FinanceAdvanced() {
                         })),
                         ...invoices.map((inv) => ({
                           id: inv.id,
-                          description: `Invoice #${inv.id} - ${inv.customerName}`,
+                          description: `Invoice #${inv.id} - ${inv.client}`,
                           category: "Invoice (Finance)",
                           date: inv.date,
                           amount: inv.total,
@@ -3843,7 +3862,7 @@ export default function FinanceAdvanced() {
                         })),
                         ...lpos.map((lpo) => ({
                           id: lpo.id,
-                          description: `LPO #${lpo.id} - ${lpo.supplierName}`,
+                          description: `LPO #${lpo.id} - ${lpo.supplier}`,
                           category: "Purchase Order (Finance)",
                           date: lpo.date,
                           amount: lpo.total,

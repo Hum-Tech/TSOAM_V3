@@ -1,8 +1,9 @@
-import { DemoResponse } from "@shared/api";
+// Removed invalid import - @shared/api module doesn't exist
+// import { DemoResponse } from "@shared/api";
 import { useEffect, useState } from "react";
 
 export default function Index() {
-  const [messageFromServer, setMessageFromServer] = useState("");
+  const [messageFromServer, setMessageFromServer] = useState<string>("");
   // Fetch users on component mount
   useEffect(() => {
     fetchHello();
@@ -11,7 +12,7 @@ export default function Index() {
   const fetchHello = async () => {
     try {
       const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
+      const data = (await response.json()) as { message: string };
       setMessageFromServer(data.message);
     } catch (error) {
       console.error("Error fetching hello:", error);

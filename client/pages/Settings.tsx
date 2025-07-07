@@ -325,6 +325,7 @@ export default function Settings() {
 
         const { exportData } = await import("@/utils/printUtils");
         exportData("pdf", {
+          format: "pdf",
           filename: `TSOAM_System_Report_${new Date().toISOString().split("T")[0]}.pdf`,
           title: "TSOAM System Report",
           subtitle: `Generated on ${new Date().toLocaleDateString()}`,
@@ -335,6 +336,7 @@ export default function Settings() {
         // Generate Excel report
         const { exportData } = await import("@/utils/printUtils");
         exportData("excel", {
+          format: "excel",
           filename: `TSOAM_System_Report_${new Date().toISOString().split("T")[0]}.xlsx`,
           title: "TSOAM System Report",
           data: [systemData],

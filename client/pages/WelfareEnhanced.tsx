@@ -800,7 +800,7 @@ export default function WelfareEnhanced() {
     }
 
     // Footer
-    const pageCount = doc.getNumberOfPages();
+    const pageCount = (doc as any).internal.getNumberOfPages();
     doc.setFontSize(10);
     doc.text(
       `Generated on: ${new Date().toLocaleDateString()}`,
@@ -949,7 +949,7 @@ export default function WelfareEnhanced() {
     }
 
     // Footer
-    const pageCount = doc.getNumberOfPages();
+    const pageCount = (doc as any).internal.getNumberOfPages();
     doc.setFontSize(10);
     doc.text(
       `Generated on: ${new Date().toLocaleDateString()}`,

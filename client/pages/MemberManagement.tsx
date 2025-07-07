@@ -70,6 +70,7 @@ interface Member {
   fullName: string;
   email: string;
   phone: string;
+  phoneNumber: string; // Compatibility property for transfers
   dateOfBirth: string;
   gender: "Male" | "Female";
   maritalStatus: "Single" | "Married" | "Divorced" | "Widowed";
@@ -137,6 +138,7 @@ const mockMembers: Member[] = [
     fullName: "John Kamau",
     email: "john.kamau@email.com",
     phone: "+254 712 345 678",
+    phoneNumber: "+254 712 345 678",
     dateOfBirth: "1985-03-15",
     gender: "Male",
     maritalStatus: "Married",
@@ -170,6 +172,7 @@ const mockMembers: Member[] = [
     fullName: "Mary Wanjiku",
     email: "mary.wanjiku@email.com",
     phone: "+254 721 456 789",
+    phoneNumber: "+254 721 456 789",
     dateOfBirth: "1990-07-22",
     gender: "Female",
     maritalStatus: "Single",
@@ -203,6 +206,7 @@ const mockMembers: Member[] = [
     fullName: "Peter Mwangi",
     email: "peter.mwangi@email.com",
     phone: "+254 733 567 890",
+    phoneNumber: "+254 733 567 890",
     dateOfBirth: "1988-11-10",
     gender: "Male",
     maritalStatus: "Married",
@@ -274,7 +278,7 @@ export default function MemberManagement() {
   const [isTransferMode, setIsTransferMode] = useState(false);
   const [showTitheRecords, setShowTitheRecords] = useState(false);
   const [selectedMemberForTithe, setSelectedMemberForTithe] =
-    useState<FullMember | null>(null);
+    useState<Member | null>(null);
   const [addMemberForm, setAddMemberForm] = useState({
     fullName: "",
     email: "",
@@ -320,7 +324,7 @@ export default function MemberManagement() {
     setAddMemberForm({
       fullName: newMemberData.fullName || "",
       email: newMemberData.email || "",
-      phone: newMemberData.phoneNumber || "",
+      phone: newMemberData.phone || newMemberData.phoneNumber || "",
       dateOfBirth: newMemberData.dateOfBirth || "",
       gender: newMemberData.gender || "",
       maritalStatus: newMemberData.maritalStatus || "",
@@ -341,7 +345,7 @@ export default function MemberManagement() {
 
   const loadMembers = () => {
     // Merge mock members with transferred members from transfer service
-    const transferredMembers = transferService.getFullMembersData();
+    const transferredMembers = transferService.getFullMembersData() as Member[];
 
     // Ensure unique IDs by prefixing transferred members
     const uniqueTransferredMembers = transferredMembers.map(
@@ -393,6 +397,7 @@ export default function MemberManagement() {
       fullName: addMemberForm.fullName,
       email: addMemberForm.email,
       phone: addMemberForm.phone,
+      phoneNumber: addMemberForm.phone, // Same as phone for compatibility
       dateOfBirth: addMemberForm.dateOfBirth,
       gender: addMemberForm.gender as "Male" | "Female",
       maritalStatus: addMemberForm.maritalStatus as any,
@@ -409,7 +414,7 @@ export default function MemberManagement() {
       bibleStudyCompletionDate: addMemberForm.bibleStudyCompletionDate,
       employmentStatus: addMemberForm.employmentStatus as any,
       previousChurchName: "",
-      reasonForLeavingPreviousChurch: "",
+      reasonForLeavingPreviousChurch: "Other" as const,
       reasonDetails: "",
       howHeardAboutUs: "Direct Registration" as any,
       serviceGroups: addMemberForm.serviceGroups,
@@ -612,11 +617,11 @@ export default function MemberManagement() {
 
     switch (statusChangeAction) {
       case "suspend":
-        newStatus = "Suspended";
+        newStatus = "Inactive"; // Map suspended to inactive
         actionDescription = "suspended";
         break;
       case "excommunicate":
-        newStatus = "Excommunicated";
+        newStatus = "Inactive"; // Map excommunicated to inactive
         actionDescription = "excommunicated";
         break;
       case "reactivate":
@@ -971,7 +976,7 @@ export default function MemberManagement() {
                                   Suspend
                                 </DropdownMenuItem>
                               )}
-                            {member.membershipStatus !== "Excommunicated" &&
+                            {member.membershipStatus === "Active" &&
                               isAdmin && (
                                 <DropdownMenuItem
                                   onClick={() => {

@@ -136,6 +136,8 @@ class FinancialTransactionService {
         module: "Finance",
         status: "Completed",
         createdBy: "Finance Officer",
+        requestedBy: "Finance Officer",
+        requiresApproval: false,
         createdAt: "2024-01-15T09:00:00Z",
         updatedAt: "2024-01-15T09:00:00Z",
       },
@@ -154,6 +156,9 @@ class FinancialTransactionService {
         moduleReference: "ITEM001",
         status: "Completed",
         createdBy: "Inventory Manager",
+        requestedBy: "Inventory Manager",
+        requiresApproval: true,
+        approvedBy: "Pastor",
         createdAt: "2024-01-16T10:30:00Z",
         updatedAt: "2024-01-16T10:30:00Z",
       },
@@ -171,6 +176,9 @@ class FinancialTransactionService {
         module: "Finance",
         status: "Completed",
         createdBy: "Finance Officer",
+        requestedBy: "Finance Officer",
+        requiresApproval: true,
+        approvedBy: "Pastor",
         createdAt: "2024-01-17T14:15:00Z",
         updatedAt: "2024-01-17T14:15:00Z",
       },
@@ -346,6 +354,8 @@ class FinancialTransactionService {
       moduleReference: item.reference,
       status: "Completed",
       createdBy: item.createdBy,
+      requestedBy: item.createdBy,
+      requiresApproval: item.purchasePrice > 1000,
     });
   }
 
@@ -375,6 +385,8 @@ class FinancialTransactionService {
       moduleReference: maintenance.reference,
       status: "Completed",
       createdBy: maintenance.createdBy,
+      requestedBy: maintenance.createdBy,
+      requiresApproval: maintenance.cost > 1000,
     });
   }
 
@@ -410,6 +422,8 @@ class FinancialTransactionService {
       moduleReference: newOffering.id,
       status: "Completed",
       createdBy: offering.collectedBy,
+      requestedBy: offering.collectedBy,
+      requiresApproval: false,
     });
 
     return newOffering;
@@ -639,6 +653,8 @@ class FinancialTransactionService {
       moduleReference: data.employeeId,
       status: "Pending", // Requires approval
       createdBy: "HR System",
+      requestedBy: "HR System",
+      requiresApproval: true,
       notes: `Gross: KSh ${data.grossSalary.toLocaleString()}, Deductions: KSh ${data.deductions.toLocaleString()}`,
     });
   }
@@ -665,6 +681,8 @@ class FinancialTransactionService {
       moduleReference: data.memberId,
       status: "Completed",
       createdBy: "System",
+      requestedBy: "System",
+      requiresApproval: data.amount > 1000,
       notes: data.reason,
     });
   }
@@ -691,6 +709,8 @@ class FinancialTransactionService {
       moduleReference: data.eventId,
       status: "Completed",
       createdBy: "System",
+      requestedBy: "System",
+      requiresApproval: data.amount > 1000,
       notes: data.description,
     });
   }
@@ -718,6 +738,8 @@ class FinancialTransactionService {
       moduleReference: data.memberId,
       status: "Completed",
       createdBy: "System",
+      requestedBy: "System",
+      requiresApproval: false,
     });
   }
 
@@ -762,6 +784,8 @@ class FinancialTransactionService {
       module: "Finance",
       status: "Completed",
       createdBy: "System",
+      requestedBy: "System",
+      requiresApproval: false,
     });
   }
 }

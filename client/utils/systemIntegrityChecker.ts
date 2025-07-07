@@ -217,6 +217,8 @@ export class SystemIntegrityChecker {
         module: "Finance",
         status: "Completed",
         createdBy: "System Test",
+        requestedBy: "System Test",
+        requiresApproval: false,
       });
 
       // Test each module's financial integration

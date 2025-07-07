@@ -88,7 +88,7 @@ class SystemMonitor {
           userAgent: navigator.userAgent,
           details: `Slow API response: ${apiResponseTime}ms`,
           severity: "high",
-          timestamp: new Date(),
+          // timestamp will be added by the security service
         });
       }
     } catch (error) {

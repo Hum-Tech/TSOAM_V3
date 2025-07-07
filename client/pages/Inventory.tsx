@@ -659,7 +659,7 @@ export default function Inventory() {
       lastUpdated: new Date().toISOString(),
       totalItems: updatedItems.length,
       totalValue: updatedItems.reduce(
-        (sum, item) => sum + item.purchasePrice * item.currentQuantity,
+        (sum, item) => sum + (item.currentValue || item.purchasePrice || 0),
         0,
       ),
     };
@@ -820,7 +820,7 @@ export default function Inventory() {
       !stockForm.unitOfMeasure ||
       !stockForm.currentQuantity ||
       !stockForm.minimumQuantity ||
-      !stockForm.unitPrice
+      !stockForm.unitCost
     ) {
       alert("Please fill in all required fields");
       return;
@@ -836,26 +836,37 @@ export default function Inventory() {
       id: stockItems.length + 1,
       tagNumber: stockForm.tagNumber,
       itemName: stockForm.itemName,
-      category: stockForm.category,
-      unitOfMeasure: stockForm.unitOfMeasure,
+      category: stockForm.category as any,
+      subcategory: stockForm.subcategory || "General",
+      description: stockForm.description || "",
+      unitOfMeasure: stockForm.unitOfMeasure as any,
       currentQuantity: parseInt(stockForm.currentQuantity),
       minimumQuantity: parseInt(stockForm.minimumQuantity),
-      unitPrice: parseFloat(stockForm.unitPrice),
+      maximumQuantity:
+        parseInt(stockForm.maximumQuantity || stockForm.minimumQuantity) * 3,
+      unitCost: parseFloat(stockForm.unitCost),
       totalValue:
-        parseInt(stockForm.currentQuantity) * parseFloat(stockForm.unitPrice),
+        parseInt(stockForm.currentQuantity) * parseFloat(stockForm.unitCost),
       supplier: stockForm.supplier,
       lastRestocked: new Date().toISOString().split("T")[0],
       location: stockForm.location,
-      purchaseDate: stockForm.purchaseDate,
-      status:
-        parseInt(stockForm.currentQuantity) <=
-        parseInt(stockForm.minimumQuantity)
-          ? "Low Stock"
-          : "In Stock",
-      notes: stockForm.notes,
-      createdAt: new Date().toISOString().split("T")[0],
-      expiryDate: stockForm.expiryDate,
-      depreciationRate: stockForm.category.includes("Asset") ? 10 : 0,
+      isDepreciable: stockForm.isDepreciable,
+      purchaseDate: new Date().toISOString().split("T")[0],
+      status: (parseInt(stockForm.currentQuantity) <=
+      parseInt(stockForm.minimumQuantity)
+        ? "Low Stock"
+        : "In Stock") as
+        | "In Stock"
+        | "Low Stock"
+        | "Out of Stock"
+        | "Discontinued",
+      notes: stockForm.notes || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      expiryDate: stockForm.expiryDate || undefined,
+      depreciationRate: stockForm.isDepreciable
+        ? parseFloat(stockForm.depreciationRate) || 0
+        : undefined,
     };
 
     setStockItems([...stockItems, newStockItem]);
@@ -870,15 +881,21 @@ export default function Inventory() {
     setStockForm({
       tagNumber: "",
       itemName: "",
-      category: "",
-      unitOfMeasure: "",
+      category: "Consumables",
+      subcategory: "",
+      description: "",
+      unitOfMeasure: "Pieces",
       currentQuantity: "",
       minimumQuantity: "",
-      unitPrice: "",
+      maximumQuantity: "",
+      unitCost: "",
       supplier: "",
       location: "",
-      purchaseDate: "",
+      binLocation: "",
       expiryDate: "",
+      warrantyPeriod: "",
+      isDepreciable: false,
+      depreciationRate: "",
       notes: "",
     });
     setShowAddStockDialog(false);
@@ -926,7 +943,7 @@ export default function Inventory() {
       toLocation: stockMovementForm.toLocation,
       reason: stockMovementForm.reason,
       performedBy: "Current User", // Replace with actual user
-      timestamp: new Date().toISOString(),
+      movementDate: new Date().toISOString().split("T")[0],
     };
 
     setStockMovements([...stockMovements, newMovement]);
@@ -951,13 +968,16 @@ export default function Inventory() {
         return {
           ...item,
           currentQuantity: newQuantity,
-          status:
-            newQuantity <= item.minimumQuantity
-              ? "Low Stock"
-              : newQuantity === 0
-                ? "Out of Stock"
-                : "In Stock",
-          totalValue: newQuantity * item.unitPrice,
+          status: (newQuantity <= item.minimumQuantity
+            ? "Low Stock"
+            : newQuantity === 0
+              ? "Out of Stock"
+              : "In Stock") as
+            | "In Stock"
+            | "Low Stock"
+            | "Out of Stock"
+            | "Discontinued",
+          totalValue: newQuantity * item.unitCost,
           lastRestocked:
             stockMovementForm.movementType === "Stock In"
               ? new Date().toISOString().split("T")[0]
@@ -980,9 +1000,11 @@ export default function Inventory() {
       tagNumber: "",
       movementType: "Stock In",
       quantity: "",
+      reason: "",
       fromLocation: "",
       toLocation: "",
-      reason: "",
+      referenceNumber: "",
+      notes: "",
     });
     setShowStockMovementDialog(false);
     alert("Stock movement recorded successfully!");
@@ -995,12 +1017,14 @@ export default function Inventory() {
       id: stockTakings.length + 1,
       stockTakingDate: new Date().toISOString().split("T")[0],
       performedBy: "Current User", // Replace with actual user
+      supervisedBy: "Supervisor", // Replace with actual supervisor
       status: "Completed",
       items: stockItems.map((item) => ({
         tagNumber: item.tagNumber,
         systemQuantity: item.currentQuantity,
-        countedQuantity: item.currentQuantity, // Would come from form inputs
+        physicalCount: item.currentQuantity, // Would come from form inputs
         variance: 0,
+        condition: "Good" as const,
       })),
       discrepancies: [],
       notes: "Stock taking completed",
@@ -2430,17 +2454,17 @@ export default function Inventory() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="unitPrice">Unit Price (KSH) *</Label>
+                  <Label htmlFor="unitCost">Unit Cost (KSH) *</Label>
                   <Input
-                    id="unitPrice"
+                    id="unitCost"
                     type="number"
-                    value={stockForm.unitPrice}
+                    value={stockForm.unitCost}
                     onChange={(e) =>
-                      setStockForm({ ...stockForm, unitPrice: e.target.value })
+                      setStockForm({ ...stockForm, unitCost: e.target.value })
                     }
                     onFocus={(e) => {
                       if (e.target.value === "0" || e.target.value === "0.00") {
-                        setStockForm({ ...stockForm, unitPrice: "" });
+                        setStockForm({ ...stockForm, unitCost: "" });
                       }
                     }}
                     placeholder="0.00"
@@ -2474,20 +2498,6 @@ export default function Inventory() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="purchaseDate">Purchase Date</Label>
-                  <Input
-                    id="purchaseDate"
-                    type="date"
-                    value={stockForm.purchaseDate}
-                    onChange={(e) =>
-                      setStockForm({
-                        ...stockForm,
-                        purchaseDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="expiryDate">Expiry Date</Label>
                   <Input

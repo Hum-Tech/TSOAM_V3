@@ -46,7 +46,7 @@ class DataRefreshManager {
       });
 
       // Always trigger dashboard refresh for financial updates
-      if (event === "financial_update" && event !== "dashboard_refresh") {
+      if (event === "financial_update" || event === "dashboard_refresh") {
         this.trigger("dashboard_refresh", 1000);
       }
     }, delay);

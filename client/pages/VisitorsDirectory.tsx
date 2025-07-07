@@ -219,7 +219,7 @@ export default function VisitorsDirectory() {
         phoneNumber: tv.phoneNumber,
         email: tv.email,
         purposeOfVisit: "Sunday Service",
-        currentChurch: tv.previousChurch || "Unknown",
+        currentChurch: (tv as any).previousChurch || "Unknown",
         howHeardAboutUs: tv.howHeardAboutChurch || "Unknown",
         whatLikedMost: "",
         prayerRequests: [],
@@ -228,7 +228,7 @@ export default function VisitorsDirectory() {
         followUpNotes: "",
         status: tv.status,
         retentionScore: tv.retentionScore,
-        totalVisits: tv.visitCount,
+        totalVisits: (tv as any).visitCount || 1,
         lastVisitDate: tv.lastVisitDate,
         notes: `Tracked visitor from visitor tracking service`,
       })),
@@ -278,7 +278,12 @@ export default function VisitorsDirectory() {
       Notes: visitor.notes || "N/A",
     }));
 
-    exportService.exportToExcel(exportData, "visitors_directory");
+    exportService.exportToExcel({
+      format: "excel",
+      filename: "visitors_directory.xlsx",
+      title: "Visitors Directory",
+      data: exportData,
+    });
   };
 
   const getStatusBadge = (status: string) => {

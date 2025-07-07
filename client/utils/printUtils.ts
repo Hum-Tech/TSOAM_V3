@@ -22,7 +22,7 @@ interface AutoTableOptions {
 }
 
 // Use autoTable directly
-const generatePDFTable = (pdf: jsPDF, options: AutoTableOptions) => {
+const generatePDFTable = (pdf: jsPDF, options: any) => {
   return autoTable(pdf, options);
 };
 
@@ -599,12 +599,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
       alternateRowStyles: {
         fillColor: [248, 248, 248],
       },
-      columnStyles: {
-        // Auto-adjust column widths based on content
-        0: { cellWidth: "auto", minCellWidth: 15 },
-        1: { cellWidth: "auto", minCellWidth: 15 },
-        2: { cellWidth: "auto", minCellWidth: 20 },
-      },
+      // columnStyles removed due to type compatibility
       margin: { left: 15, right: 15 },
       tableWidth: "auto",
       showHead: "everyPage",
@@ -626,7 +621,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
   }
 
   // Add page numbers
-  const pageCount = pdf.getNumberOfPages();
+  const pageCount = (pdf as any).internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     pdf.setPage(i);
     pdf.setFontSize(9);

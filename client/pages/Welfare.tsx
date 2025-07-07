@@ -298,7 +298,7 @@ function Welfare() {
       // Record welfare payment in Finance module
       financialTransactionService.addWelfarePayment({
         memberName: request.fullName,
-        memberId: request.id,
+        memberId: String(request.id),
         paymentType: request.typeOfAssistanceNeeded,
         amount: request.specificAmountRequested,
         reason: request.reasonForRequest,
@@ -353,7 +353,6 @@ function Welfare() {
         <PageHeader
           title="Welfare Management"
           description="Manage church welfare requests and assistance programs"
-          icon={Heart}
         />
 
         {/* Summary Cards */}

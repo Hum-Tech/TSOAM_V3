@@ -312,7 +312,7 @@ class ExportService {
       didDrawPage: (data) => {
         // Add page numbers
         const pageNumber = data.pageNumber;
-        const pageCount = pdf.getNumberOfPages();
+        const pageCount = (pdf as any).internal.getNumberOfPages();
         pdf.setFontSize(9);
         pdf.setTextColor(100, 100, 100);
         pdf.text(
@@ -341,7 +341,7 @@ class ExportService {
   /**
    * Export to Excel format
    */
-  private async exportToExcel(options: ExportOptions): Promise<void> {
+  public async exportToExcel(options: ExportOptions): Promise<void> {
     this.notifyProgress({
       step: "Generating Excel",
       progress: 20,

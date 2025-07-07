@@ -908,7 +908,7 @@ export default function HR() {
 
         return {
           id: index + 1,
-          employeeId: employee.id,
+          employeeId: String(employee.id),
           employeeName: employee.fullName,
           period: currentMonth,
           basicSalary: basicSalary,
@@ -1134,7 +1134,7 @@ export default function HR() {
           setTimeout(() => {
             alert(
               `❌ Payroll Rejected by Finance!\n\n` +
-                `📅 Period: ${rejectionData.period}\n` +
+                `��� Period: ${rejectionData.period}\n` +
                 `💰 Amount: KSh ${rejectionData.amount?.toLocaleString()}\n` +
                 `👤 Rejected by: ${rejectionData.rejectedBy}\n` +
                 `📝 Reason: ${rejectionData.rejectionReason}\n` +
@@ -1317,7 +1317,7 @@ export default function HR() {
   };
 
   // Generate P9 PDF
-  const generateP9PDF = (employee: Employee, year: number) => {
+  const generateP9PDF = async (employee: Employee, year: number) => {
     const p9Data = calculateP9Data(employee, year);
     const doc = new jsPDF("landscape", "mm", "a4"); // A4 landscape: 297mm x 210mm
 
@@ -1462,9 +1462,9 @@ export default function HR() {
 
     try {
       // Generate table with autoTable for proper fitting
-      const autoTablePlugin = require("jspdf-autotable");
+      const autoTable = await import("jspdf-autotable");
 
-      doc.autoTable({
+      (doc as any).autoTable({
         head: [tableHeaders],
         body: tableData,
         startY: 75,
@@ -1890,21 +1890,21 @@ export default function HR() {
     p9Data.monthlyData.forEach((data) => {
       excelData.push([
         data.month,
-        data.basicSalary,
-        data.benefitsNonCash,
-        data.valueOfQuarters,
-        data.totalGrossPay,
-        data.affordableHousingLevy,
-        data.socialHealthInsuranceFund,
-        data.postRetirementMedicalFund,
-        data.definedContributionRetirementScheme,
-        data.ownerOccupiedInterest,
-        data.totalDeductions,
-        data.chargeablePay,
-        data.taxCharged,
-        data.personalRelief,
-        data.insuranceRelief,
-        data.payeTax,
+        String(data.basicSalary),
+        String(data.benefitsNonCash),
+        String(data.valueOfQuarters),
+        String(data.totalGrossPay),
+        String(data.affordableHousingLevy),
+        String(data.socialHealthInsuranceFund),
+        String(data.postRetirementMedicalFund),
+        String(data.definedContributionRetirementScheme),
+        String(data.ownerOccupiedInterest),
+        String(data.totalDeductions),
+        String(data.chargeablePay),
+        String(data.taxCharged),
+        String(data.personalRelief),
+        String(data.insuranceRelief),
+        String(data.payeTax),
       ]);
     });
 
@@ -1954,21 +1954,21 @@ export default function HR() {
 
     excelData.push([
       "TOTAL",
-      totals.basicSalary,
-      totals.benefitsNonCash,
-      totals.valueOfQuarters,
-      totals.totalGrossPay,
-      totals.affordableHousingLevy,
-      totals.socialHealthInsuranceFund,
-      totals.postRetirementMedicalFund,
-      totals.definedContributionRetirementScheme,
-      totals.ownerOccupiedInterest,
-      totals.totalDeductions,
-      totals.chargeablePay,
-      totals.taxCharged,
-      totals.personalRelief,
-      totals.insuranceRelief,
-      totals.payeTax,
+      String(totals.basicSalary),
+      String(totals.benefitsNonCash),
+      String(totals.valueOfQuarters),
+      String(totals.totalGrossPay),
+      String(totals.affordableHousingLevy),
+      String(totals.socialHealthInsuranceFund),
+      String(totals.postRetirementMedicalFund),
+      String(totals.definedContributionRetirementScheme),
+      String(totals.ownerOccupiedInterest),
+      String(totals.totalDeductions),
+      String(totals.chargeablePay),
+      String(totals.taxCharged),
+      String(totals.personalRelief),
+      String(totals.insuranceRelief),
+      String(totals.payeTax),
     ]);
 
     excelData.push([]);

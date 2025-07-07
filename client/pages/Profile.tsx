@@ -49,7 +49,7 @@ export default function Profile() {
     id: user?.id || "",
     name: user?.name || "",
     email: user?.email || "",
-    phone: user?.phone || "+254700000000",
+    phone: (user as any)?.phone || "+254700000000",
     department: user?.department || "Administration",
     position: "System Administrator",
     role: user?.role || "Admin",
@@ -204,7 +204,6 @@ export default function Profile() {
         <PageHeader
           title="My Profile"
           description="Manage your personal information, preferences, and account settings"
-          icon={User}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
