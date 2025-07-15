@@ -24,3 +24,18 @@ dist-ssr
 *.sw?
 
 .config/
+
+# Environment and deployment
+.env
+.env.*
+.netlify/
+
+# Development files
+temp_*
+*_instructions.md
+scroll_addition.txt
+AGENTS.md
+
+# Build outputs
+build/
+.output/
